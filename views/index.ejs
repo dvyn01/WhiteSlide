@@ -1,0 +1,24 @@
+<% include partials/header %>
+
+<div class="container" style="margin: 50px;">
+    <form action="/" method="POST">
+        <button type="submit" class="btn btn-primary">
+            Create a new room
+        </button>
+    </form>
+    <hr>
+    <hr>
+    <form action="/connect" method="POST">
+        <div class="form-group">
+            <input type="text" class="form-control" name="roomName" placeholder="Enter an existing room id">
+        </div>
+        <button type="submit" class="btn btn-primary">
+            Submit
+        </button>
+    </form>
+</div>
+<div>
+    <%= message %>
+</div>
+
+<% include partials/footer %>
