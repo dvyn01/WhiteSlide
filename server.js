@@ -4,13 +4,18 @@ const express = require('express'),
     ejs = require('ejs'),
     path = require('path'),
     bodyParser = require('body-parser'),
-    mongoose = require('mongoose'),
-    Room = require('./models/room'),
-    User = require('./models/user');
+    mongoose = require('mongoose');
+// Room = require('./models/room'),
+// User = require('./models/user');
 
 const app = express(),
     server = http.createServer(app),
     io = socketIO.listen(server);
+
+
+mongoose.set('useNewUrlParser', true);
+mongoose.set('useFindAndModify', false);
+// mongoose.set('useCreateIndex', true);
 
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
@@ -20,7 +25,19 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Connect to the database
-mongoose.connect('mongodb://localhost/socket_app');
+mongoose.connect('mongodb://localhost/socket_io');
+
+
+var roomSchema = new mongoose.Schema({
+    roomId: String,
+    lineHistory: [{
+        pos: { x: Number, y: Number },
+        pos_prev: { x: Number, y: Number },
+        mode: String
+    }],
+});
+
+var Room = mongoose.model("Room", roomSchema);
 
 // Home
 app.get('/', (req, res) => {
@@ -43,23 +60,23 @@ app.get('/:id', (req, res) => {
     // Room id
     var room = req.params.id.toString();
 
-    Room.find({ roomId: room }, (err, foundRoom) => {
+    Room.findOne({ roomId: room }, (err, foundRoom) => {
         if (err) {
             console.log('Something bad happened. Please try again!');
             res.redirect('back');
-        } else if (!foundRoom.length) {                                             // Room doesn't exist.
+        } else if (!foundRoom) {                                             // Room doesn't exist.
             Room.create({                                                           // Create a new room
-                roomId: room,
+                roomId: room
             }, function (err, createdRoom) {
                 if (err) {
                     console.log(err);
                 } else {
                     console.log('New room created with id: ' + room);
-                    res.render('show', { id: req.params.id });
+                    res.render('show', { id: room });
                 }
             });
-        } else {                                                                   // Room with id already exists
-            res.render('show', { id: req.params.id });
+        } else {
+            res.render('show', { id: room });
         }
     });
 });
@@ -71,11 +88,11 @@ app.post('/connect', (req, res) => {
     var room = req.body.roomName;
 
     // Check if room exists
-    Room.find({ roomId: room }, (err, foundRoom) => {
+    Room.findOne({ roomId: room }, (err, foundRoom) => {
         if (err) {
             console.log('Something bad happened. Please try again!');
             res.redirect('back');
-        } else if (!foundRoom.length) {
+        } else if (!foundRoom) {
             console.log('Room does not exist');
             res.render('index', { message: "Please enter a valid room id!" });
         } else {
@@ -84,27 +101,33 @@ app.post('/connect', (req, res) => {
     });
 });
 
-io.on('connection', (socket) => {
-
-    // Room id
-    var room = socket.handshake['query']['r_var'];
-
-    // Join room
-    socket.join(room);                                                          // Join particular room
-    
-    console.log('user has joined room ' + room);
+function drawHistory(socket, room) {
 
     Room.findOne({ roomId: room }, (err, foundRoom) => {
         if (err) {
-            console.log(err);
-        } else {
+            console.log('Something bad happened. Please try again!');
+        } else if (!foundRoom) {
+            console.log('Room not found');                                                  // Room doesn't exist.
+        } else {                                                                            // Room with id exists
             foundRoom.lineHistory.forEach(line => {
-                var thisLine = [{ x: line.pos.x, y: line.pos.y }, { x: line.pos_prev.x, y: line.pos_prev.y }];
+                var thisLine = [{ x: line.pos_prev.x, y: line.pos_prev.y }, { x: line.pos.x, y: line.pos.y }];
                 var mode = line.mode;
                 socket.emit('draw_line', { line: thisLine, mode: mode });
             });
         }
     });
+
+}
+
+io.on('connection', (socket) => {
+
+    // Room id
+    var room = socket.handshake['query']['r_var'].replace(/(\r\n|\n|\r)/gm,"");;
+
+    // Join room
+    socket.join(room);                                                                              // Join particular room
+
+    console.log('user has joined room ' + room);
 
     // On disconnection
     socket.on('disconnect', () => {
@@ -112,17 +135,20 @@ io.on('connection', (socket) => {
         console.log('user disconnected');
     });
 
+    drawHistory(socket, room);
+
     // add handler for message type "draw_line".
     socket.on('draw_line', function (data) {
 
-        var thisLine = { pos: { x: data.line[0].x, y: data.line[0].y }, pos_prev: { x: data.line[1].x, y: data.line[1].y }, mode: data.mode };
+        var thisLine = { pos: { x: data.line[1].x, y: data.line[1].y }, pos_prev: { x: data.line[0].x, y: data.line[0].y }, mode: data.mode };
 
-        Room.findOneAndUpdate({ roomId: room }, { $push: { lineHistory: thisLine } },
+        Room.findOneAndUpdate({ roomId: room }, { $push: { lineHistory: thisLine } }, { new: true },
             (err, success) => {
                 if (err) {
                     console.log(err)
                 } else {
                     io.in(room).emit('draw_line', { line: data.line, mode: data.mode });
+                    // console.log(success);
                 }
             }
         );

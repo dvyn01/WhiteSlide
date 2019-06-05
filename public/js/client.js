@@ -10,6 +10,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // Room id
     var room = document.getElementById('room').innerText.replace(/\s\s+/g, '');
 
+    console.log('client wla room ' + room);
+    console.log(' next');
+
     // Connect to room
     var socket = socket_connect(room);
 
