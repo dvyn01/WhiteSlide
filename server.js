@@ -5,7 +5,11 @@ const express = require('express'),
     path = require('path'),
     bodyParser = require('body-parser'),
     mongoose = require('mongoose'),
-    Room = require('./models/room'),
+    passport = require('passport'),
+    localStrategy = require('passport-local'),
+    passportLocalMongoose = require('passport-local-mongoose'),
+    expressSession = require('express-session');
+Room = require('./models/room'),
     User = require('./models/user');
 
 const app = express(),
@@ -19,13 +23,85 @@ mongoose.set('useFindAndModify', false);
 
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
+
 // Use ejs
 app.set('view engine', 'ejs');
+
 // Use body-parser
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// Initialize passport
+app.use(expressSession({
+    secret: "This is secret! Shush!",
+    resave: false,
+    saveUninitialized: false
+}));
+app.use(passport.initialize());
+app.use(passport.session())
+
+passport.use(new localStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
 // Connect to the database
 mongoose.connect('mongodb://localhost/socket_io');
+
+// Pass current user details to every route
+app.use((req, res, next) => {
+    res.locals.currentUser = req.user;
+    next();                                                                 // next function to call
+});
+
+// Middleware
+function isLoggedIn(req, res, next) {
+    if (req.isAuthenticated()) {
+        return next();
+    } else {
+        res.redirect('/login');
+    }
+}
+
+// ===================================================================
+//                          Auth Routes
+// ===================================================================
+
+// Register new user
+app.get('/register', (req, res) => {
+    res.render('register');
+});
+
+// Register logic
+app.post('/register', (req, res) => {
+    User.register(new User({ username: req.body.username }), req.body.password, (err, user) => {
+        if (err) {
+            console.log('Something Bad Happened!');
+            res.redirect('back');
+        } else {
+            passport.authenticate('local')(req, res, () => {
+                res.redirect('/');
+            });
+        }
+    });
+});
+
+// Login route
+app.get('/login', (req, res) => {
+    res.render('login');
+});
+
+// Login logic
+app.post('/login', passport.authenticate("local", {
+    successRedirect: '/',
+    failureRedirect: '/login'
+}), (req, res) => {
+
+});
+
+// logout
+app.get('/logout', (req, res) => {
+    req.logout();
+    res.redirect('/');
+});
 
 // Home
 app.get('/', (req, res) => {
@@ -95,7 +171,7 @@ function loadHistory(socket, room) {
         if (err) {
             console.log('Something bad happened. Please try again!');
         } else if (!foundRoom) {                                                            // Room doesn't exist.
-            console.log('Room not found');                                                  
+            console.log('Room not found');
         } else {                                                                            // Room with id exists
             foundRoom.lineHistory.forEach(line => {
                 var thisLine = [{ x: line.pos_prev.x, y: line.pos_prev.y }, { x: line.pos.x, y: line.pos.y }];
@@ -110,7 +186,7 @@ function loadHistory(socket, room) {
 io.on('connection', (socket) => {
 
     // Room id
-    var room = socket.handshake['query']['r_var'].replace(/(\r\n|\n|\r)/gm, "");;
+    var room = socket.handshake['query']['r_var'].replace(/(\r\n|\n|\r)/gm, "");            // Remove all the whitespaces
 
     // Join room
     socket.join(room);
@@ -143,6 +219,7 @@ io.on('connection', (socket) => {
         );
     });
 });
+
 
 // Server on port 3000
 server.listen(3000, () => {

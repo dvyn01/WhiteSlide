@@ -42,12 +42,12 @@ document.addEventListener("DOMContentLoaded", () => {
     // Get Canvas element and create context
     var canvas = document.getElementById('drawing');
     var context = canvas.getContext('2d');
-    var width = window.innerWidth;
-    var height = window.innerHeight;
+    var width = window.innerWidth / 1.05;
+    var height = window.innerHeight / 1.3;
 
     // set canvas to full browser width/height
-    canvas.width = width / 1.05;
-    canvas.height = height / 1.05;
+    canvas.width = width;
+    canvas.height = height;
 
     // register mouse event handlers
     canvas.onmousedown = function (e) {
@@ -60,7 +60,7 @@ document.addEventListener("DOMContentLoaded", () => {
     canvas.onmousemove = function (e) {
         // normalize mouse position to range 0.0 - 1.0
         mouse.pos.x = e.clientX / width;
-        mouse.pos.y = e.clientY / height;
+        mouse.pos.y = e.clientY / height * 0.85;
         mouse.move = true;
     };
 
