@@ -8,8 +8,8 @@ const express = require('express'),
     passport = require('passport'),
     localStrategy = require('passport-local'),
     passportLocalMongoose = require('passport-local-mongoose'),
-    expressSession = require('express-session');
-Room = require('./models/room'),
+    expressSession = require('express-session'),
+    Room = require('./models/room'),
     User = require('./models/user');
 
 const app = express(),
@@ -72,7 +72,11 @@ app.get('/register', (req, res) => {
 
 // Register logic
 app.post('/register', (req, res) => {
-    User.register(new User({ username: req.body.username }), req.body.password, (err, user) => {
+    User.register(new User({
+        username: req.body.username,
+        firstName: req.body.firstName,
+        lastName: req.body.lastName
+    }), req.body.password, (err, user) => {
         if (err) {
             console.log('Something Bad Happened!');
             res.redirect('back');
@@ -100,8 +104,50 @@ app.post('/login', passport.authenticate("local", {
 // logout
 app.get('/logout', (req, res) => {
     req.logout();
-    res.redirect('/');
+    res.redirect('back');
 });
+
+// User profile
+app.get('/home', isLoggedIn, (req, res) => {
+    Room.find({}, (err, room) => {
+        if(err) {
+            console.log(err);
+        } else {
+            res.render('profile', {rooms: room});     
+        }
+    });
+});
+
+// Add a new room for a user
+app.post('/user/rooms/new', (req, res) => {
+    var room = req.body.roomId,
+        userName = req.user.username,
+        roomName = req.body.roomName;
+    Room.findOne({ roomId: room }, (err, foundRoom) => {
+        if (err) {
+            console.log('Something Bad Happened!');
+            res.redirect('back');
+        } else {
+            User.findOneAndUpdate({ username: userName },
+                { $push: { rooms: foundRoom } },
+                { new: true },
+                (err, foundUser) => {
+                    if (err) {
+                        console.log(err)
+                    } else {
+                        console.log(foundUser);
+                    }
+                }
+            );
+        }
+    });
+    res.redirect('/home');
+});
+
+
+//
+//
+//
 
 // Home
 app.get('/', (req, res) => {
@@ -174,9 +220,15 @@ function loadHistory(socket, room) {
             console.log('Room not found');
         } else {                                                                            // Room with id exists
             foundRoom.lineHistory.forEach(line => {
-                var thisLine = [{ x: line.pos_prev.x, y: line.pos_prev.y }, { x: line.pos.x, y: line.pos.y }];
+                var thisLine = [
+                    { x: line.pos_prev.x, y: line.pos_prev.y },
+                    { x: line.pos.x, y: line.pos.y }
+                ];
                 var mode = line.mode;
-                socket.emit('draw_line', { line: thisLine, mode: mode });
+                socket.emit('draw_line', {
+                    line: thisLine,
+                    mode: mode
+                });
             });
         }
     });
@@ -205,15 +257,20 @@ io.on('connection', (socket) => {
     // add handler for message type "draw_line".
     socket.on('draw_line', function (data) {
 
-        var thisLine = { pos: { x: data.line[1].x, y: data.line[1].y }, pos_prev: { x: data.line[0].x, y: data.line[0].y }, mode: data.mode };
+        var thisLine = {
+            pos: { x: data.line[1].x, y: data.line[1].y },
+            pos_prev: { x: data.line[0].x, y: data.line[0].y },
+            mode: data.mode
+        };
 
-        Room.findOneAndUpdate({ roomId: room }, { $push: { lineHistory: thisLine } }, { new: true },
+        Room.findOneAndUpdate({ roomId: room },
+            { $push: { lineHistory: thisLine } },
+            { new: true },
             (err, success) => {
                 if (err) {
                     console.log(err)
                 } else {
                     io.in(room).emit('draw_line', { line: data.line, mode: data.mode });
-                    // console.log(success);
                 }
             }
         );

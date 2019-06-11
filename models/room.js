@@ -7,6 +7,6 @@ var roomSchema = new mongoose.Schema({
         pos_prev: { x: Number, y: Number },
         mode: String
     }]
-});               //override default collection name
+});
 
 module.exports = mongoose.model("Room", roomSchema);

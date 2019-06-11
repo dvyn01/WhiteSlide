@@ -11,4 +11,21 @@
 <button id="pen">Pen</button>
 <button id="eraser">Eraser</button>
 
+<hr>
+<div>
+    <% if(currentUser) { %>
+    <form action="/user/rooms/new" method="POST">
+        <div>
+            <input type="text" name="roomId" value="<%=id%>" hidden>
+        </div>
+        <div>
+            <input type="text" class="form-control" name="roomName" placeholder="Enter a short name for the room!" required>
+        </div>
+        <button class="btn btn-primary">
+            Save
+        </button>
+    </form>
+    <% } %>
+</div>
+
 <% include partials/footer %>
