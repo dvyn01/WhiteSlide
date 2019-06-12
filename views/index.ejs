@@ -1,21 +1,73 @@
 <% include partials/header %>
 
-<div class="container" style="margin: 50px;">
-    <form action="/" method="POST">
-        <button type="submit" class="btn btn-primary">
-            Create a new room
-        </button>
-    </form>
-    <hr>
-    <hr>
-    <form action="/connect" method="POST">
-        <div class="form-group">
-            <input type="text" class="form-control" name="roomName" placeholder="Enter an existing room id">
+<div class="container">
+    <div style="text-align: center;">
+        <h1 style="color: #a8d4ee">
+            <strong>
+                Welcome to XYZ! Collaborate Now!
+            </strong>
+        </h1>
+    </div>
+    <hr style="color:#a8d4ee;">
+    <br>
+    <br>
+    <br>
+    <div class="container">
+        <p>
+            <img src="./images/world.jpg" alt="World" style="float: right; width: 420px; margin-right: 90px;">
+            <div>
+                <h3 style="color: #a8d4ee;">
+                    XYZ is the simlpest way to collaborate online.
+                </h3>
+            </div>
+            <br>
+            <div style="color: white; margin-right: 530px; text-align: justify;">
+                <h5>
+                    <p>
+                        Collaborate in real time, wherever you are around the world. Bring your team together on the
+                        same
+                        Whiteboard.
+                    </p>
+                    <p>
+                        Just create an online Whiteboard in one click, and share it live by sending url to people, or
+                        even with the assigned Room Id.
+                    </p>
+                    <p>
+                        Save all your Whiteboards with just one click. Sign Up now!
+                    </p>
+                </h5>
+            </div>
+        </p>
+    </div>
+    <br>
+    <br>
+
+    <h3 style="color: #a8d4ee;">
+        <form action="/" method="POST">
+            Create a new Room
+            <button type="submit" class="btn btn-primary">
+                Here
+            </button>
+        </form>
+    </h3>
+    <br>
+    <br>
+    <h2 style="color: white;">OR</h2>
+    <br>
+    <br>
+    <h3 style="color: #a8d4ee;">
+        Join an Existing Room:
+        <hr>
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text" id="basic-addon3">Enter an existing room ID </span>
+            </div>
+            <input type="text" class="form-control" placeholder="Here">
         </div>
         <button type="submit" class="btn btn-primary">
             Submit
         </button>
-    </form>
+    </h3>
 </div>
 <div>
     <%= message %>

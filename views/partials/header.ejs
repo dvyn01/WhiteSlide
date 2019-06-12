@@ -8,6 +8,7 @@
     <title>WhiteBoard</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <link href="https://fonts.googleapis.com/css?family=Roboto:300&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./css/main.css">
     <style>
         body {
             font-family: 'Roboto', sans-serif;
@@ -18,7 +19,7 @@
 
 <body>
 
-    <nav class="navbar navbar-light" style="background-color: #e3f2fd;">
+    <nav class="navbar">
         <a href="/" class="navbar-brand">
             <img src="./images/icon.png" alt="icon" style="width: 50px">
         </a>
@@ -27,7 +28,7 @@
             <li><a href="/register">Sign Up!</a></li>
             <li><a href="/login">Login!</a></li>
             <% } else { %>
-            <li><a href="/home">Logged in as <%= currentUser.firstName %></a></li>
+            <li><a href="/home">Logged in as <%= currentUser.firstName %>!</a></li>
             <li><a href="/logout">Logout!</a></li>
             <% } %>
         </ul>

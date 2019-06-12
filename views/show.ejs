@@ -1,5 +1,23 @@
 <% include partials/header %>
 
+<style>
+    body {
+        background: white;
+    }
+
+    html {
+        background: white;
+    }
+
+    .navbar {
+        background: rgb(243, 242, 241);
+    }
+
+    input[type="text"],
+    textarea {
+        background-color: rgb(243, 242, 241);
+    }
+</style>
 <script type="text/javascript" src="./js/client.js"> </script>
 
 <span id="room" hidden>
@@ -19,7 +37,8 @@
             <input type="text" name="roomId" value="<%=id%>" hidden>
         </div>
         <div>
-            <input type="text" class="form-control" name="roomName" placeholder="Enter a short name for the room!" required>
+            <input type="text" class="form-control" name="roomName" placeholder="Enter a short name for the room!"
+                required>
         </div>
         <button class="btn btn-primary">
             Save

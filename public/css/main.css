@@ -1,0 +1,28 @@
+
+body { 
+    background: url('../images/background.jpg') no-repeat center center fixed; 
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+}
+
+html { 
+    background: url('../images/background.jpg') no-repeat center center fixed; 
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+}
+
+.navbar {
+    background: linear-gradient(#000, 50%, #0000);
+}
+
+input[type="text"], textarea {
+    background-color : #1d1d1f;   
+}
+
+input[type="password"], textarea {
+    background-color : #1d1d1f;   
+}
