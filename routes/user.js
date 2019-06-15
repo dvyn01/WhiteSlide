@@ -15,13 +15,16 @@ function isLoggedIn(req, res, next) {
     }
 }
 
+
 // Register new user
 router.get('/register', (req, res) => {
     res.render('register');
 });
 
+
 // Register logic
 router.post('/register', (req, res) => {
+
     User.register(new User({
         username: req.body.username,
         firstName: req.body.firstName,
@@ -37,12 +40,15 @@ router.post('/register', (req, res) => {
             });
         }
     });
+
 });
+
 
 // Login route
 router.get('/login', (req, res) => {
     res.render('login');
 });
+
 
 // Login logic
 router.post('/login', passport.authenticate("local", {
@@ -52,14 +58,17 @@ router.post('/login', passport.authenticate("local", {
 
 });
 
+
 // logout
 router.get('/logout', isLoggedIn, (req, res) => {
     req.logout();
     res.redirect('/');
 });
 
+
 // User profile
 router.get('/home', isLoggedIn, (req, res) => {
+
     Room.find({}, (err, room) => {
         if(err) {
             console.log(err);
@@ -67,13 +76,17 @@ router.get('/home', isLoggedIn, (req, res) => {
             res.render('profile', {rooms: room});     
         }
     });
+
 });
+
 
 // Add a new room for a user
 router.post('/user/rooms/new', isLoggedIn, (req, res) => {
+
     var room = req.body.roomId,
         userName = req.user.username,
         roomName = req.body.roomName;
+
     Room.findOne({ roomId: room }, (err, foundRoom) => {
         if (err) {
             console.log('Something Bad Happened!');
@@ -92,9 +105,10 @@ router.post('/user/rooms/new', isLoggedIn, (req, res) => {
             );
         }
     });
+
     res.redirect('/home');
+
 });
 
-console.log('User Route Connected!');
 
 module.exports = router;

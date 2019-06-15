@@ -14,6 +14,7 @@ const express = require('express'),
     userRoutes = require('./routes/user'),
     indexRoute = require('./routes/index');
 
+
 const app = express(),
     server = http.createServer(app),
     io = socketIO.listen(server);
@@ -23,14 +24,18 @@ mongoose.set('useNewUrlParser', true);
 mongoose.set('useFindAndModify', false);
 // mongoose.set('useCreateIndex', true);
 
+
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
+
 
 // Use ejs
 app.set('view engine', 'ejs');
 
+
 // Use body-parser
 app.use(bodyParser.urlencoded({ extended: true }));
+
 
 // Initialize passport
 app.use(expressSession({
@@ -41,18 +46,22 @@ app.use(expressSession({
 app.use(passport.initialize());
 app.use(passport.session())
 
+
 passport.use(new localStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
+
 // Connect to the database
 mongoose.connect('mongodb://localhost/socket_io');
+
 
 // Pass current user details to every route
 app.use((req, res, next) => {
     res.locals.currentUser = req.user;
-    next();                                                                 // next function to call
+    next();                                                                                 // next function to call
 });
+
 
 // Middleware
 function isLoggedIn(req, res, next) {
@@ -67,10 +76,12 @@ function isLoggedIn(req, res, next) {
 // Use Auth Routes
 app.use(userRoutes);
 
+
 // Use Index Routes
 app.use(indexRoute);
 
 
+// function to draw all the previous lines when a new user is connected to a room
 function loadHistory(socket, room) {
 
     Room.findOne({ roomId: room }, (err, foundRoom) => {
@@ -94,6 +105,7 @@ function loadHistory(socket, room) {
     });
 
 }
+
 
 io.on('connection', (socket) => {
 
@@ -135,6 +147,7 @@ io.on('connection', (socket) => {
             }
         );
     });
+    
 });
 
 

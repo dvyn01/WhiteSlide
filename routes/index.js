@@ -4,8 +4,7 @@ var express = require('express'),
     Room = require('../models/room'),
     User = require('../models/user');
 
-console.log('Index ROutes Connected!');
-
+    
 // Middleware
 function isLoggedIn(req, res, next) {
     if (req.isAuthenticated()) {
@@ -15,20 +14,25 @@ function isLoggedIn(req, res, next) {
     }
 }
 
+
 // Home
 router.get('/', (req, res) => {
     res.render('index', { message: "" });
 });
 
+
+// Assign a random ID to a room
 function getRandomId() {
     return Math.floor(100000 + Math.random() * 900000);
 }
+
 
 // Create a new room
 router.post('/', (req, res) => {
     var newId = getRandomId();
     res.redirect(`/${newId}`);
 });
+
 
 // Create a new room
 router.get('/:id', (req, res) => {
@@ -55,7 +59,9 @@ router.get('/:id', (req, res) => {
             res.render('show', { id: room });
         }
     });
+
 });
+
 
 // Join an existing room
 router.post('/connect', (req, res) => {
@@ -75,6 +81,7 @@ router.post('/connect', (req, res) => {
             res.redirect(`/${room}`);
         }
     });
+
 });
 
 module.exports = router;
