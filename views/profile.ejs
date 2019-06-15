@@ -9,14 +9,15 @@
             </strong>
         </h2>
         <br>
-        <% currentUser.rooms.forEach(room => { %>
-        <%var Id = room._id%>
+        <% currentUser.rooms.forEach(userRoom => { %>
+        <%var Id = userRoom.roomInfo._id%>
         <% rooms.forEach(room => { %>
         <%if(room._id.toString() == Id) {%>
         <li>
             <a href="/<%= room.roomId%>">
                 <%= room.roomId%>
             </a>
+            : <%= userRoom.roomName %>
         </li>
         <% }%>
         <%});%>

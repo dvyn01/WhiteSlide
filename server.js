@@ -10,7 +10,8 @@ const express = require('express'),
     passportLocalMongoose = require('passport-local-mongoose'),
     expressSession = require('express-session'),
     Room = require('./models/room'),
-    User = require('./models/user');
+    User = require('./models/user'),
+    userRoutes = require('./routes/user');
 
 const app = express(),
     server = http.createServer(app),
@@ -66,84 +67,85 @@ function isLoggedIn(req, res, next) {
 // ===================================================================
 
 // Register new user
-app.get('/register', (req, res) => {
-    res.render('register');
-});
+// app.get('/register', (req, res) => {
+//     res.render('register');
+// });
 
-// Register logic
-app.post('/register', (req, res) => {
-    User.register(new User({
-        username: req.body.username,
-        firstName: req.body.firstName,
-        lastName: req.body.lastName
-    }), req.body.password, (err, user) => {
-        if (err) {
-            console.log('Something Bad Happened!');
-            res.redirect('back');
-        } else {
-            passport.authenticate('local')(req, res, () => {
-                res.redirect('/');
-            });
-        }
-    });
-});
+// // Register logic
+// app.post('/register', (req, res) => {
+//     User.register(new User({
+//         username: req.body.username,
+//         firstName: req.body.firstName,
+//         lastName: req.body.lastName
+//     }), req.body.password, (err, user) => {
+//         if (err) {
+//             console.log('Something Bad Happened!');
+//             res.redirect('back');
+//         } else {
+//             passport.authenticate('local')(req, res, () => {
+//                 res.redirect('/');
+//             });
+//         }
+//     });
+// });
 
-// Login route
-app.get('/login', (req, res) => {
-    res.render('login');
-});
+// // Login route
+// app.get('/login', (req, res) => {
+//     res.render('login');
+// });
 
-// Login logic
-app.post('/login', passport.authenticate("local", {
-    successRedirect: '/',
-    failureRedirect: '/login'
-}), (req, res) => {
+// // Login logic
+// app.post('/login', passport.authenticate("local", {
+//     successRedirect: '/',
+//     failureRedirect: '/login'
+// }), (req, res) => {
 
-});
+// });
 
-// logout
-app.get('/logout', (req, res) => {
-    req.logout();
-    res.redirect('back');
-});
+// // logout
+// app.get('/logout', (req, res) => {
+//     req.logout();
+//     res.redirect('back');
+// });
 
-// User profile
-app.get('/home', isLoggedIn, (req, res) => {
-    Room.find({}, (err, room) => {
-        if(err) {
-            console.log(err);
-        } else {
-            res.render('profile', {rooms: room});     
-        }
-    });
-});
+// // User profile
+// app.get('/home', isLoggedIn, (req, res) => {
+//     Room.find({}, (err, room) => {
+//         if(err) {
+//             console.log(err);
+//         } else {
+//             res.render('profile', {rooms: room});     
+//         }
+//     });
+// });
 
-// Add a new room for a user
-app.post('/user/rooms/new', (req, res) => {
-    var room = req.body.roomId,
-        userName = req.user.username,
-        roomName = req.body.roomName;
-    Room.findOne({ roomId: room }, (err, foundRoom) => {
-        if (err) {
-            console.log('Something Bad Happened!');
-            res.redirect('back');
-        } else {
-            User.findOneAndUpdate({ username: userName },
-                { $push: { rooms: foundRoom } },
-                { new: true },
-                (err, foundUser) => {
-                    if (err) {
-                        console.log(err)
-                    } else {
-                        console.log(foundUser);
-                    }
-                }
-            );
-        }
-    });
-    res.redirect('/home');
-});
+// // Add a new room for a user
+// app.post('/user/rooms/new', (req, res) => {
+//     var room = req.body.roomId,
+//         userName = req.user.username,
+//         roomName = req.body.roomName;
+//     Room.findOne({ roomId: room }, (err, foundRoom) => {
+//         if (err) {
+//             console.log('Something Bad Happened!');
+//             res.redirect('back');
+//         } else {
+//             User.findOneAndUpdate({ username: userName },
+//                 { $push: { rooms: {roomInfo: foundRoom, roomName: roomName} } },
+//                 { new: true },
+//                 (err, foundUser) => {
+//                     if (err) {
+//                         console.log(err);
+//                     } else {
+//                         console.log(foundUser);
+//                     }
+//                 }
+//             );
+//         }
+//     });
+//     res.redirect('/home');
+// });
 
+app.use(userRoutes);
 
 //
 //

@@ -6,12 +6,13 @@ var userSchema = new mongoose.Schema({
     password: String,
     firstName: String,
     lastName: String,
-    rooms: [
-        {
+    rooms: [{
+        roomInfo: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Room",
-        }
-    ]
+        },
+        roomName: String
+    }]
 });
 
 userSchema.plugin(passportLocalMongoose);

@@ -32,18 +32,26 @@
 <hr>
 <div>
     <% if(currentUser) { %>
-    <form action="/user/rooms/new" method="POST">
-        <div>
-            <input type="text" name="roomId" value="<%=id%>" hidden>
+    <div class="container">
+        <div style="width: 30%; margin: auto;">
+            <form action="/user/rooms/new" method="POST">
+                <div class="form-group">
+                    <input type="text" name="roomId" value="<%=id%>" hidden>
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" name="roomName"
+                        placeholder="Enter a short name for the room!" required>
+                </div>
+                <button class="btn btn-primary btn-block">
+                    Save
+                </button>
+            </form>
         </div>
-        <div>
-            <input type="text" class="form-control" name="roomName" placeholder="Enter a short name for the room!"
-                required>
-        </div>
-        <button class="btn btn-primary">
-            Save
-        </button>
-    </form>
+    </div>
+    <% } else { %>
+    <h3>
+        Sign Up or Login to save this Room!
+    </h3>
     <% } %>
 </div>
 
