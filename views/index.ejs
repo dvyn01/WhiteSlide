@@ -58,15 +58,17 @@
     <h3 style="color: #a8d4ee;">
         Join an Existing Room:
         <hr>
-        <div class="input-group mb-3">
-            <div class="input-group-prepend">
-                <span class="input-group-text" id="basic-addon3">Enter an existing room ID </span>
+        <form action="/connect" method="POST">
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="basic-addon3">Enter an existing room ID </span>
+                </div>
+                <input type="text" class="form-control" placeholder="Here" name="roomName">
             </div>
-            <input type="text" class="form-control" placeholder="Here">
-        </div>
-        <button type="submit" class="btn btn-primary">
-            Submit
-        </button>
+            <button type="submit" class="btn btn-primary">
+                Submit
+            </button>
+        </form>
     </h3>
 </div>
 <div>

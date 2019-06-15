@@ -1,8 +1,5 @@
 var express = require('express'),
     router = express.Router(),
-    // http = require('http'),
-    // socketIO = require('socket.io'),
-    bodyParser = require('body-parser'),
     mongoose = require('mongoose'),
     Room = require('../models/room'),
     User = require('../models/user');
@@ -64,7 +61,7 @@ router.get('/:id', (req, res) => {
 router.post('/connect', (req, res) => {
 
     // Room id
-    var room = req.body.roomName;
+    var room = req.body.roomName.toString();
 
     // Check if room exists
     Room.findOne({ roomId: room }, (err, foundRoom) => {

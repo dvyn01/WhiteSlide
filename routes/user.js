@@ -32,6 +32,7 @@ router.post('/register', (req, res) => {
             res.redirect('back');
         } else {
             passport.authenticate('local')(req, res, () => {
+                console.log(user);
                 res.redirect('/');
             });
         }
@@ -54,7 +55,7 @@ router.post('/login', passport.authenticate("local", {
 // logout
 router.get('/logout', isLoggedIn, (req, res) => {
     req.logout();
-    res.redirect('back');
+    res.redirect('/');
 });
 
 // User profile

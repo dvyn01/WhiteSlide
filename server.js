@@ -11,7 +11,8 @@ const express = require('express'),
     expressSession = require('express-session'),
     Room = require('./models/room'),
     User = require('./models/user'),
-    userRoutes = require('./routes/user');
+    userRoutes = require('./routes/user'),
+    indexRoute = require('./routes/index');
 
 const app = express(),
     server = http.createServer(app),
@@ -62,156 +63,13 @@ function isLoggedIn(req, res, next) {
     }
 }
 
-// ===================================================================
-//                          Auth Routes
-// ===================================================================
 
-// Register new user
-// app.get('/register', (req, res) => {
-//     res.render('register');
-// });
-
-// // Register logic
-// app.post('/register', (req, res) => {
-//     User.register(new User({
-//         username: req.body.username,
-//         firstName: req.body.firstName,
-//         lastName: req.body.lastName
-//     }), req.body.password, (err, user) => {
-//         if (err) {
-//             console.log('Something Bad Happened!');
-//             res.redirect('back');
-//         } else {
-//             passport.authenticate('local')(req, res, () => {
-//                 res.redirect('/');
-//             });
-//         }
-//     });
-// });
-
-// // Login route
-// app.get('/login', (req, res) => {
-//     res.render('login');
-// });
-
-// // Login logic
-// app.post('/login', passport.authenticate("local", {
-//     successRedirect: '/',
-//     failureRedirect: '/login'
-// }), (req, res) => {
-
-// });
-
-// // logout
-// app.get('/logout', (req, res) => {
-//     req.logout();
-//     res.redirect('back');
-// });
-
-// // User profile
-// app.get('/home', isLoggedIn, (req, res) => {
-//     Room.find({}, (err, room) => {
-//         if(err) {
-//             console.log(err);
-//         } else {
-//             res.render('profile', {rooms: room});     
-//         }
-//     });
-// });
-
-// // Add a new room for a user
-// app.post('/user/rooms/new', (req, res) => {
-//     var room = req.body.roomId,
-//         userName = req.user.username,
-//         roomName = req.body.roomName;
-//     Room.findOne({ roomId: room }, (err, foundRoom) => {
-//         if (err) {
-//             console.log('Something Bad Happened!');
-//             res.redirect('back');
-//         } else {
-//             User.findOneAndUpdate({ username: userName },
-//                 { $push: { rooms: {roomInfo: foundRoom, roomName: roomName} } },
-//                 { new: true },
-//                 (err, foundUser) => {
-//                     if (err) {
-//                         console.log(err);
-//                     } else {
-//                         console.log(foundUser);
-//                     }
-//                 }
-//             );
-//         }
-//     });
-//     res.redirect('/home');
-// });
-
+// Use Auth Routes
 app.use(userRoutes);
 
-//
-//
-//
+// Use Index Routes
+app.use(indexRoute);
 
-// Home
-app.get('/', (req, res) => {
-    res.render('index', { message: "" });
-});
-
-function getRandomId() {
-    return Math.floor(100000 + Math.random() * 900000);
-}
-
-// Create a new room
-app.post('/', (req, res) => {
-    var newId = getRandomId();
-    res.redirect(`/${newId}`);
-});
-
-// Create a new room
-app.get('/:id', (req, res) => {
-
-    // Room id
-    var room = req.params.id.toString();
-
-    Room.findOne({ roomId: room }, (err, foundRoom) => {
-        if (err) {
-            console.log('Something bad happened. Please try again!');
-            res.redirect('back');
-        } else if (!foundRoom) {                                                    // Room doesn't exist.
-            Room.create({                                                           // Create a new room
-                roomId: room
-            }, function (err, createdRoom) {
-                if (err) {
-                    console.log(err);
-                } else {
-                    console.log('New room created with id: ' + room);
-                    res.render('show', { id: room });
-                }
-            });
-        } else {
-            res.render('show', { id: room });
-        }
-    });
-});
-
-// Join an existing room
-app.post('/connect', (req, res) => {
-
-    // Room id
-    var room = req.body.roomName;
-
-    // Check if room exists
-    Room.findOne({ roomId: room }, (err, foundRoom) => {
-        if (err) {
-            console.log('Something bad happened. Please try again!');
-            res.redirect('back');
-        } else if (!foundRoom) {
-            console.log('Room does not exist');
-            res.render('index', { message: "Please enter a valid room id!" });
-        } else {
-            res.redirect(`/${room}`);
-        }
-    });
-});
 
 function loadHistory(socket, room) {
 
