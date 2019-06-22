@@ -97,6 +97,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     });
 
+    socket.on('joinRequest', () => {
+
+    });
 
     // main loop, running every 25ms
     function mainLoop() {

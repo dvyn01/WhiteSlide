@@ -107,13 +107,44 @@ function loadHistory(socket, room) {
 }
 
 
+// On connection
 io.on('connection', (socket) => {
 
     // Room id
     var room = socket.handshake['query']['r_var'].replace(/(\r\n|\n|\r)/gm, "");            // Remove all the whitespaces
 
-    // Join room
-    socket.join(room);
+
+    io.of('/').adapter.clients([room], (err, clients) => {                                  // clients is an array containing all connected users
+        var connectedUsersCount = clients.length;                                           // Number of connected users in a room
+
+        // If there are no users currently  
+        if (connectedUsersCount == 0) {
+
+            Room.findOne({ roomId: room }, (err, foundRoom) => {
+                if (err) {
+                    console.log(err);
+                } else {
+
+                    // If the room is already created with no users online
+                    if (foundRoom.isCreated) {
+                        console.log('Sorry! You do not have write permission right now!');
+                        return;
+                    } else {                                                                // New room created
+
+                        // Join room
+                        socket.join(room);
+                        foundRoom.isCreated = true;
+                        foundRoom.save();
+                    }
+                }
+            })
+        } else {
+            
+            // Join room
+            socket.join(room);
+        }
+    });
+
 
     console.log('user has joined room ' + room);
 
@@ -147,7 +178,7 @@ io.on('connection', (socket) => {
             }
         );
     });
-    
+
 });
 
 

@@ -4,7 +4,7 @@ var express = require('express'),
     Room = require('../models/room'),
     User = require('../models/user');
 
-    
+
 // Middleware
 function isLoggedIn(req, res, next) {
     if (req.isAuthenticated()) {
@@ -23,14 +23,27 @@ router.get('/', (req, res) => {
 
 // Assign a random ID to a room
 function getRandomId() {
-    return Math.floor(100000 + Math.random() * 900000);
+        var id = Math.floor(100000 + Math.random() * 900000).toString();
+        return new Promise((resolve, reject) => {
+            Room.findOne({ roomId: id }, (err, foundRoom) => {
+                if (err) {
+                    console.log('Something Bad Happened!');
+                    reject(err);
+                } else if (!foundRoom) {
+                    resolve(id);
+                } else {
+                    setTimeout(getRandomId, 10);
+                }
+            });  
+        });
 }
 
 
 // Create a new room
 router.post('/', (req, res) => {
-    var newId = getRandomId();
-    res.redirect(`/${newId}`);
+    getRandomId().then((data) => {
+        res.redirect(`/${data}`);
+    });
 });
 
 
@@ -46,7 +59,8 @@ router.get('/:id', (req, res) => {
             res.redirect('back');
         } else if (!foundRoom) {                                                    // Room doesn't exist.
             Room.create({                                                           // Create a new room
-                roomId: room
+                roomId: room,
+                isCreated: false
             }, function (err, createdRoom) {
                 if (err) {
                     console.log(err);

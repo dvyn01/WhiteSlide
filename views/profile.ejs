@@ -1,9 +1,9 @@
 <% include partials/header %>
 
 <div class="container">
-    <h1 style="text-align: center;">Welcome, <%= currentUser.firstName %>!</h1>
+    <h1 style="text-align: center; color: #a8d4ee;">Welcome, <%= currentUser.firstName %>!</h1>
     <div>
-        <h2>
+        <h2 style="color: #a8d4ee;">
             <strong>
                 Your Rooms:
             </strong>
@@ -13,7 +13,7 @@
         <%var Id = userRoom.roomInfo._id%>
         <% rooms.forEach(room => { %>
         <%if(room._id.toString() == Id) {%>
-        <li>
+        <li style="color: white;">
             <a href="/<%= room.roomId%>">
                 <%= room.roomId%>
             </a>
