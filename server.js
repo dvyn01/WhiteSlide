@@ -127,7 +127,7 @@ io.on('connection', (socket) => {
 
                     // If the room is already created with no users online
                     if (foundRoom.isCreated) {
-                        console.log('Sorry! You do not have write permission right now!');
+                        socket.emit('changePermission');
                         return;
                     } else {                                                                // New room created
 
@@ -140,13 +140,12 @@ io.on('connection', (socket) => {
             })
         } else {
             
-            // Join room
+            // // Join room
             socket.join(room);
         }
     });
 
 
-    console.log('user has joined room ' + room);
 
     // On disconnection
     socket.on('disconnect', () => {
@@ -157,7 +156,7 @@ io.on('connection', (socket) => {
     // Fetch lineHistory for the room
     loadHistory(socket, room);
 
-    // add handler for message type "draw_line".
+    // Add handler for message type "draw_line".
     socket.on('draw_line', function (data) {
 
         var thisLine = {

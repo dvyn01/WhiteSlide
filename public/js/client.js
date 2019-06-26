@@ -20,6 +20,10 @@ document.addEventListener("DOMContentLoaded", () => {
     var mode = "pen";
 
 
+    // Store write permissions
+    var writePermission = true;
+
+
     var pen = document.getElementById('pen');
     var eraser = document.getElementById('eraser');
 
@@ -97,9 +101,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
     });
 
-    socket.on('joinRequest', () => {
 
+
+    socket.on('changePermission', () => {
+        alert('Sorry! You do not have write permission now.');
+        writePermission = false;
     });
+
+    // socket.on('joinRequest', () => {
+    //     console.log('join req');
+    //     if(confirm('A new user wants to join the room')) {
+    //         return true;
+    //     } else {
+    //         return false;
+    //     }
+    // });
+
 
     // main loop, running every 25ms
     function mainLoop() {
@@ -111,7 +128,17 @@ document.addEventListener("DOMContentLoaded", () => {
             mouse.move = false;
         }
         mouse.pos_prev = { x: mouse.pos.x, y: mouse.pos.y };
+
+        // If the user doesn't have write permission
+        if (!writePermission) {
+            console.log(' No writing');
+            clearTimeout(mainLoop);
+            return;
+        }
+
+        // Check for changes every 25ms
         setTimeout(mainLoop, 25);
+
     }
 
     mainLoop();
