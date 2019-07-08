@@ -12,9 +12,11 @@ const express = require('express'),
     Room = require('./models/room'),
     User = require('./models/user'),
     userRoutes = require('./routes/user'),
-    indexRoute = require('./routes/index');
+    indexRoute = require('./routes/index'),
+    flash = require('connect-flash');
 
 
+// Create server and use socket.io
 const app = express(),
     server = http.createServer(app),
     io = socketIO.listen(server);
@@ -22,11 +24,14 @@ const app = express(),
 
 mongoose.set('useNewUrlParser', true);
 mongoose.set('useFindAndModify', false);
-// mongoose.set('useCreateIndex', true);
 
 
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
+
+
+// Use connect-flash
+app.use(flash());
 
 
 // Use ejs
@@ -56,9 +61,11 @@ passport.deserializeUser(User.deserializeUser());
 mongoose.connect('mongodb://localhost/socket_io');
 
 
-// Pass current user details to every route
+// Pass current user and flash message details to every route
 app.use((req, res, next) => {
     res.locals.currentUser = req.user;
+    res.locals.error = req.flash('error');
+    res.locals.success = req.flash('success');
     next();                                                                                 // next function to call
 });
 
@@ -68,6 +75,7 @@ function isLoggedIn(req, res, next) {
     if (req.isAuthenticated()) {
         return next();
     } else {
+        req.flash('error', 'Please Login First!');
         res.redirect('/login');
     }
 }
@@ -117,6 +125,7 @@ io.on('connection', (socket) => {
     io.of('/').adapter.clients([room], (err, clients) => {                                  // clients is an array containing all connected users
         var connectedUsersCount = clients.length;                                           // Number of connected users in a room
 
+
         // If there are no users currently  
         if (connectedUsersCount == 0) {
 
@@ -129,7 +138,7 @@ io.on('connection', (socket) => {
                     if (foundRoom.isCreated) {
                         socket.emit('changePermission');
                         return;
-                    } else {                                                                // New room created
+                    } else {                                                                // Create new room
 
                         // Join room
                         socket.join(room);
@@ -139,7 +148,7 @@ io.on('connection', (socket) => {
                 }
             })
         } else {
-            
+
             // // Join room
             socket.join(room);
         }
@@ -153,9 +162,11 @@ io.on('connection', (socket) => {
         console.log('user disconnected');
     });
 
+
     // Fetch lineHistory for the room
     loadHistory(socket, room);
 
+    
     // Add handler for message type "draw_line".
     socket.on('draw_line', function (data) {
 

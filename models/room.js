@@ -1,5 +1,6 @@
 var mongoose = require('mongoose');
 
+
 var roomSchema = new mongoose.Schema({
     roomId: String,
     lineHistory: [{
@@ -9,5 +10,6 @@ var roomSchema = new mongoose.Schema({
     }],
     isCreated: Boolean
 });
+
 
 module.exports = mongoose.model("Room", roomSchema);

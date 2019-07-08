@@ -94,7 +94,6 @@ document.addEventListener("DOMContentLoaded", () => {
             context.lineWidth = 5;
         }
 
-        // context.globalCompositeOperation = "source-over";
         context.moveTo(line[0].x * width, line[0].y * height);
         context.lineTo(line[1].x * width, line[1].y * height);
         context.stroke();
@@ -108,34 +107,29 @@ document.addEventListener("DOMContentLoaded", () => {
         writePermission = false;
     });
 
-    // socket.on('joinRequest', () => {
-    //     console.log('join req');
-    //     if(confirm('A new user wants to join the room')) {
-    //         return true;
-    //     } else {
-    //         return false;
-    //     }
-    // });
-
 
     // main loop, running every 25ms
     function mainLoop() {
 
         // check if the user is drawing
         if (mouse.click && mouse.move && mouse.pos_prev) {
+
             // send line to to the server
             socket.emit('draw_line', { line: [mouse.pos, mouse.pos_prev], mode: mode });
             mouse.move = false;
+
         }
         mouse.pos_prev = { x: mouse.pos.x, y: mouse.pos.y };
 
+
         // If the user doesn't have write permission
         if (!writePermission) {
-            console.log(' No writing');
+            console.log('You do not have write permission!');
             clearTimeout(mainLoop);
             return;
         }
 
+        
         // Check for changes every 25ms
         setTimeout(mainLoop, 25);
 

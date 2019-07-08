@@ -3,7 +3,8 @@ var express = require('express'),
     User = require('../models/user'),
     Room = require('../models/room'),
     passport = require('passport')
-    mongoose = require('mongoose');
+    mongoose = require('mongoose'),
+    flash = require("connect-flash");
 
 
 // Middleware
@@ -11,6 +12,7 @@ function isLoggedIn(req, res, next) {
     if (req.isAuthenticated()) {
         return next();
     } else {
+        req.flash('error', 'You must Login first!');
         res.redirect('/login');
     }
 }
@@ -26,19 +28,23 @@ router.get('/register', (req, res) => {
 router.post('/register', (req, res) => {
 
     User.register(new User({
+
         username: req.body.username,
         firstName: req.body.firstName,
         lastName: req.body.lastName
+
     }), req.body.password, (err, user) => {
+
         if (err) {
-            console.log('Something Bad Happened!');
+            req.flash('error', err.message);
             res.redirect('back');
         } else {
             passport.authenticate('local')(req, res, () => {
-                console.log(user);
+                req.flash('success', 'You have been successfully registered!');
                 res.redirect('/');
             });
         }
+
     });
 
 });
@@ -62,6 +68,7 @@ router.post('/login', passport.authenticate("local", {
 // logout
 router.get('/logout', isLoggedIn, (req, res) => {
     req.logout();
+    req.flash('success', 'You have been successfully logged out!');
     res.redirect('/');
 });
 
@@ -88,6 +95,7 @@ router.post('/user/rooms/new', isLoggedIn, (req, res) => {
         roomName = req.body.roomName;
 
     Room.findOne({ roomId: room }, (err, foundRoom) => {
+
         if (err) {
             console.log('Something Bad Happened!');
             res.redirect('back');
@@ -104,6 +112,7 @@ router.post('/user/rooms/new', isLoggedIn, (req, res) => {
                 }
             );
         }
+
     });
 
     res.redirect('/home');
